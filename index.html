@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TOEIC Vocabulary Practice - Top 500</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Segoe UI',Tahoma,sans-serif;background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);min-height:100vh;color:#fff}
+        .container{max-width:900px;margin:0 auto;padding:20px}
+        h1{text-align:center;font-size:2rem;margin-bottom:10px;background:linear-gradient(90deg,#e94560,#f5a623);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+        .subtitle{text-align:center;color:#aaa;margin-bottom:30px}
+        .nav{display:flex;justify-content:center;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+        .nav button{padding:10px 20px;border:none;border-radius:25px;cursor:pointer;font-size:.95rem;font-weight:600;transition:all .3s}
+        .nav button.active{background:linear-gradient(135deg,#e94560,#f5a623);color:#fff;transform:scale(1.05)}
+        .nav button:not(.active){background:rgba(255,255,255,.1);color:#ccc}
+        .nav button:hover:not(.active){background:rgba(255,255,255,.2)}
+        .part-selector{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:25px}
+        .part-btn{padding:8px 12px;border:2px solid rgba(233,69,96,.3);background:transparent;color:#ccc;border-radius:8px;cursor:pointer;font-size:.78rem;transition:all .3s;white-space:nowrap}
+        .part-btn:hover{border-color:#e94560;color:#fff}
+        .part-btn.active{background:#e94560;border-color:#e94560;color:#fff}
+        .part-btn.completed{border-color:#4ecdc4;background:rgba(78,205,196,.2);color:#4ecdc4}
+        .progress-bar{width:100%;height:6px;background:rgba(255,255,255,.1);border-radius:3px;margin-bottom:20px;overflow:hidden}
+        .progress-fill{height:100%;background:linear-gradient(90deg,#4ecdc4,#44bd63);border-radius:3px;transition:width .5s}
+        .stats{display:flex;justify-content:space-between;margin-bottom:20px;font-size:.9rem;color:#aaa}
+        .flashcard-container{perspective:1000px;margin:0 auto 20px;max-width:600px}
+        .flashcard{width:100%;min-height:340px;position:relative;cursor:pointer;transition:transform .6s;transform-style:preserve-3d}
+        .flashcard.flipped{transform:rotateY(180deg)}
+        .flashcard-front,.flashcard-back{position:absolute;width:100%;min-height:340px;backface-visibility:hidden;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:25px}
+        .flashcard-front{background:linear-gradient(135deg,#2d3561,#1a1a2e);border:2px solid rgba(233,69,96,.3)}
+        .flashcard-back{background:linear-gradient(135deg,#1a3a2e,#1a2a1e);border:2px solid rgba(78,205,196,.3);transform:rotateY(180deg);overflow-y:auto;justify-content:flex-start;padding-top:20px}
+        .card-word{font-size:2.2rem;font-weight:700;margin-bottom:10px}
+        .card-pos{font-size:.9rem;color:#f5a623}
+        .btn-sound{background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.2);color:#fff;width:44px;height:44px;border-radius:50%;cursor:pointer;font-size:1.3rem;display:inline-flex;align-items:center;justify-content:center;transition:all .3s;margin:8px 0}
+        .btn-sound:hover{background:rgba(233,69,96,.3);border-color:#e94560;transform:scale(1.1)}
+        .btn-sound-sm{background:none;border:1px solid rgba(255,255,255,.2);color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:.9rem;display:inline-flex;align-items:center;justify-content:center;transition:all .3s}
+        .btn-sound-sm:hover{background:rgba(233,69,96,.3);border-color:#e94560}
+        .card-meaning{font-size:1.15rem;text-align:center;margin-bottom:4px}
+        .card-meaning-th{font-size:1.05rem;color:#4ecdc4;text-align:center;margin-bottom:15px}
+        .card-examples{font-size:.82rem;color:#bbb;text-align:left;width:100%}
+        .card-examples .ex{margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,.05);display:flex;align-items:flex-start;gap:6px}
+        .card-examples .ex-en{color:#ddd;flex:1}
+        .btn-speak-ex{background:none;border:1px solid rgba(255,255,255,.15);color:#fff;width:24px;height:24px;min-width:24px;border-radius:50%;cursor:pointer;font-size:.7rem;display:inline-flex;align-items:center;justify-content:center;transition:all .3s;flex-shrink:0;margin-top:0}
+        .btn-speak-ex:hover{background:rgba(233,69,96,.3);border-color:#e94560;transform:scale(1.1)}
+        .card-examples .ex-th{color:#f5a623;font-size:.78rem;margin-top:2px}
+        .card-section-en,.card-section-th{width:100%}
+        .card-section-en{margin-bottom:4px}
+        .card-section-th{margin-top:4px}
+        .card-divider{width:100%;height:2px;background:linear-gradient(90deg,transparent,rgba(78,205,196,.5),rgba(233,69,96,.5),transparent);margin:8px 0}
+        .card-examples-th .ex-en{color:#4ecdc4}
+        .card-controls{display:flex;justify-content:center;gap:15px;margin-top:20px}
+        .card-controls button{padding:12px 30px;border:none;border-radius:25px;cursor:pointer;font-size:1rem;font-weight:600;transition:all .3s}
+        .btn-know{background:#4ecdc4;color:#1a1a2e}
+        .btn-dont-know{background:#e94560;color:#fff}
+        .btn-next{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff}
+        .card-controls button:hover{transform:scale(1.05);opacity:.9}
+        .flip-hint{text-align:center;color:#666;font-size:.85rem;margin-top:10px}
+        .quiz-question{background:rgba(255,255,255,.05);border-radius:16px;padding:30px;margin-bottom:20px;border:1px solid rgba(255,255,255,.1)}
+        .quiz-word{font-size:1.8rem;font-weight:700;text-align:center;margin-bottom:5px}
+        .quiz-pos{text-align:center;color:#f5a623;margin-bottom:20px}
+        .quiz-options{display:grid;gap:12px}
+        .quiz-option{padding:15px 20px;background:rgba(255,255,255,.05);border:2px solid rgba(255,255,255,.15);border-radius:12px;cursor:pointer;font-size:1rem;transition:all .3s;text-align:left;color:#fff}
+        .quiz-option:hover{border-color:#667eea;background:rgba(102,126,234,.1)}
+        .quiz-option.correct{border-color:#4ecdc4;background:rgba(78,205,196,.2)}
+        .quiz-option.wrong{border-color:#e94560;background:rgba(233,69,96,.2)}
+        .quiz-option.disabled{pointer-events:none}
+        .quiz-opt-th{font-size:.85rem;color:#4ecdc4;margin-top:4px}
+        .word-list{display:grid;gap:8px}
+        .word-item{display:grid;grid-template-columns:30px 130px 60px 1fr;align-items:start;padding:12px 16px;background:rgba(255,255,255,.03);border-radius:10px;border:1px solid rgba(255,255,255,.06);transition:all .3s}
+        .word-item:hover{background:rgba(255,255,255,.08);border-color:rgba(233,69,96,.3)}
+        .word-item .word{font-weight:600;font-size:1.05rem}
+        .word-item .pos{color:#f5a623;font-size:.8rem}
+        .word-item .meaning{color:#aaa;font-size:.9rem}
+        .word-item .meaning-th{color:#4ecdc4;font-size:.85rem}
+        .search-box{width:100%;padding:12px 20px;border-radius:25px;border:2px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#fff;font-size:1rem;margin-bottom:20px;outline:none}
+        .search-box:focus{border-color:#e94560}
+        .search-box::placeholder{color:#666}
+        .voice-picker{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+        .voice-picker label{color:#aaa;font-size:.85rem}
+        .voice-speed{display:flex;align-items:center;gap:6px}
+        .voice-speed input[type=range]{width:80px;accent-color:#e94560;cursor:pointer}
+        .voice-speed .speed-val{color:#f5a623;font-size:.8rem;min-width:32px}
+        .hidden{display:none!important}
+        @media(max-width:600px){.container{padding:10px}h1{font-size:1.5rem}.card-word{font-size:1.5rem}.word-item{grid-template-columns:1fr;gap:4px}}
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>TOEIC Vocabulary Practice</h1>
+    <p class="subtitle">Top 500 Words &bull; 20 Themes &bull; English-Thai &bull; <span id="overallProgress">0/500 learned</span></p>
+    <div class="nav">
+        <button id="btn-flashcard" class="active" onclick="setMode('flashcard')">📇 Flashcards</button>
+        <button id="btn-quiz" onclick="setMode('quiz')">📝 Quiz</button>
+        <button id="btn-list" onclick="setMode('list')">📖 Word List</button>
+        <button onclick="resetProgress()" style="background:rgba(233,69,96,.2);color:#e94560;padding:10px 16px;border:1px solid #e94560;border-radius:25px;cursor:pointer;font-size:.85rem">🔄 Reset</button>
+    </div>
+    <div class="voice-picker">
+        <label>🗣️ Random Accent (🇺🇸 🇨🇦 🇬🇧 🇦🇺)</label>
+        <div class="voice-speed"><label>Speed:</label><input type="range" id="speedRange" min="0.5" max="1.5" step="0.1" value="0.9"><span class="speed-val" id="speedVal">0.9x</span></div>
+    </div>
+    <div class="part-selector" id="partSelector"></div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="stats"><span id="statLeft">Word 1 / 25</span><span id="statKnown">Known: 0</span></div>
+    <div id="flashcardMode">
+        <div class="flashcard-container">
+            <div class="flashcard" id="flashcard" onclick="flipCard()">
+                <div class="flashcard-front"><div class="card-word" id="fcWord"></div><div class="card-pos" id="fcPos"></div><button class="btn-sound" onclick="event.stopPropagation();speakWord()" title="Listen">🔊</button></div>
+                <div class="flashcard-back"><div class="card-section-en" id="fcSectionEn"><div class="card-meaning" id="fcMeaning"></div><div class="card-examples" id="fcExamplesEn"></div></div><div class="card-divider"></div><div class="card-section-th" id="fcSectionTh"><div class="card-meaning-th" id="fcMeaningTh"></div><div class="card-examples card-examples-th" id="fcExamplesTh"></div></div></div>
+            </div>
+        </div>
+        <p class="flip-hint">Click card to flip</p>
+        <div class="card-controls">
+            <button class="btn-dont-know" onclick="markWord(false)">✗ Don't Know</button>
+            <button class="btn-next" onclick="nextCard()">→ Skip</button>
+            <button class="btn-know" onclick="markWord(true)">✓ Know</button>
+        </div>
+    </div>
+    <div id="quizMode" class="hidden">
+        <div class="quiz-question"><div class="quiz-word" id="qzWord"></div><button class="btn-sound" onclick="speakWord()" title="Listen">🔊</button><div class="quiz-pos" id="qzPos"></div><div class="quiz-options" id="qzOptions"></div></div>
+        <div class="card-controls"><button class="btn-next" onclick="nextQuiz()">Next Question →</button></div>
+    </div>
+    <div id="listMode" class="hidden">
+        <input type="text" class="search-box" id="searchBox" placeholder="Search words (English or Thai)..." oninput="filterList()">
+        <div class="word-list" id="wordList"></div>
+    </div>
+</div>
+<script src="toeic_data.js"></script>
+<script>
+let currentPart=0,currentIndex=0,mode='flashcard';
+let quizKnown=JSON.parse(localStorage.getItem('toeic_quiz_known')||'{}');
+let fcKnown=JSON.parse(localStorage.getItem('toeic_fc_known')||'{}');
+let quizScore=0,quizTotal=0,quizAnswered=false;
+let quizOrder=[];
+function init(){renderPartSelector();loadPart(0)}
+function getPartWords(i){return vocabulary.filter((_,idx)=>themeMap[idx]===i)}
+function renderPartSelector(){const c=document.getElementById('partSelector');c.innerHTML='';for(let i=0;i<20;i++){const b=document.createElement('button');b.className='part-btn'+(i===currentPart?' active':'');const pw=getPartWords(i);if(pw.length>0&&pw.filter(w=>quizKnown[w.w]).length===pw.length)b.classList.add('completed');b.textContent=themes[i].name;b.onclick=()=>loadPart(i);c.appendChild(b)}}
+function loadPart(i){currentPart=i;currentIndex=0;quizScore=0;quizTotal=0;shuffleQuiz();renderPartSelector();updateDisplay()}
+function shuffleQuiz(){const words=getPartWords(currentPart);quizOrder=[...Array(words.length).keys()];for(let i=quizOrder.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[quizOrder[i],quizOrder[j]]=[quizOrder[j],quizOrder[i]]}}
+function setMode(m){mode=m;document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));document.getElementById('btn-'+m).classList.add('active');document.getElementById('flashcardMode').classList.toggle('hidden',m!=='flashcard');document.getElementById('quizMode').classList.toggle('hidden',m!=='quiz');document.getElementById('listMode').classList.toggle('hidden',m!=='list');currentIndex=0;quizScore=0;quizTotal=0;shuffleQuiz();updateDisplay()}
+function updateDisplay(){const words=getPartWords(currentPart);const total=words.length;if(mode==='flashcard'){const k=words.filter(w=>fcKnown[w.w]).length;document.getElementById('progressFill').style.width=(k/total*100)+'%';document.getElementById('statKnown').textContent='Flashcard Known: '+k+'/'+total;document.getElementById('statLeft').textContent='Card '+(currentIndex+1)+' / '+total;showFlashcard(words[currentIndex])}else if(mode==='quiz'){const k=words.filter(w=>quizKnown[w.w]).length;document.getElementById('progressFill').style.width=(k/total*100)+'%';document.getElementById('statKnown').textContent='Quiz Mastered: '+k+'/'+total;document.getElementById('statLeft').textContent='Score: '+quizScore+'/'+quizTotal;showQuiz(words)}else{const k=words.filter(w=>quizKnown[w.w]).length;document.getElementById('progressFill').style.width=(k/total*100)+'%';document.getElementById('statKnown').textContent='Quiz Mastered: '+k+'/'+total;document.getElementById('statLeft').textContent=themes[currentPart].name+' — '+total+' words';showList(words)}}
+function showFlashcard(word){document.getElementById('flashcard').classList.remove('flipped');document.getElementById('fcWord').textContent=word.w;document.getElementById('fcPos').textContent=word.p;document.getElementById('fcMeaning').textContent=word.m;document.getElementById('fcMeaningTh').textContent=word.th;let hEn='',hTh='';word.ex.forEach(e=>{var safeEn=e.en.replace(/'/g,"\\'");hEn+='<div class="ex"><button class="btn-speak-ex" onclick="event.stopPropagation();speak(\''+safeEn+'\')" title="Listen">🔊</button><div class="ex-en">\u2022 '+e.en+'</div></div>';hTh+='<div class="ex"><div class="ex-en">\u2022 '+e.th+'</div></div>'});document.getElementById('fcExamplesEn').innerHTML=hEn;document.getElementById('fcExamplesTh').innerHTML=hTh}
+function flipCard(){document.getElementById('flashcard').classList.toggle('flipped')}
+function markWord(known){const w=getPartWords(currentPart)[currentIndex];if(known)fcKnown[w.w]=true;else delete fcKnown[w.w];localStorage.setItem('toeic_fc_known',JSON.stringify(fcKnown));updateOverall();nextCard()}
+function nextCard(){const total=getPartWords(currentPart).length;currentIndex=(currentIndex+1)%total;updateDisplay()}
+function showQuiz(words){quizAnswered=false;const word=words[quizOrder[currentIndex]];document.getElementById('qzWord').textContent=word.w;document.getElementById('qzPos').textContent=word.p;let opts=[{m:word.m,th:word.th}];const all=vocabulary.filter(v=>v.w!==word.w).map(v=>({m:v.m,th:v.th}));while(opts.length<4){const r=all[Math.floor(Math.random()*all.length)];if(!opts.find(o=>o.m===r.m))opts.push(r)}opts.sort(()=>Math.random()-0.5);const c=document.getElementById('qzOptions');c.innerHTML='';opts.forEach(opt=>{const b=document.createElement('button');b.className='quiz-option';b.dataset.meaning=opt.m;b.innerHTML=opt.m+'<div class="quiz-opt-th">'+opt.th+'</div>';b.onclick=()=>selectAnswer(b,opt.m,word.m,word.w);c.appendChild(b)})}
+function selectAnswer(btn,selected,correct,wordStr){if(quizAnswered)return;quizAnswered=true;quizTotal++;document.querySelectorAll('.quiz-option').forEach(b=>{b.classList.add('disabled');if(b.dataset.meaning===correct)b.classList.add('correct')});if(selected===correct){quizScore++;btn.classList.add('correct');quizKnown[wordStr]=true;localStorage.setItem('toeic_quiz_known',JSON.stringify(quizKnown));renderPartSelector();updateOverall()}else{btn.classList.add('wrong')}document.getElementById('statLeft').textContent='Score: '+quizScore+'/'+quizTotal;const words=getPartWords(currentPart);const k=words.filter(w=>quizKnown[w.w]).length;document.getElementById('progressFill').style.width=(k/words.length*100)+'%';document.getElementById('statKnown').textContent='Quiz Mastered: '+k+'/'+words.length}
+function nextQuiz(){const total=getPartWords(currentPart).length;currentIndex=(currentIndex+1)%total;if(currentIndex===0)shuffleQuiz();updateDisplay()}
+function showList(words){const c=document.getElementById('wordList');c.innerHTML='';words.forEach(word=>{const d=document.createElement('div');d.className='word-item';d.innerHTML='<button class="btn-sound-sm" onclick="speak(\''+word.w+'\')">🔊</button><span class="word">'+word.w+'</span><span class="pos">'+word.p+'</span><div><div class="meaning">'+word.m+'</div><div class="meaning-th">'+word.th+'</div></div>';c.appendChild(d)})}
+function filterList(){const q=document.getElementById('searchBox').value.toLowerCase();const words=q?vocabulary.filter(w=>w.w.includes(q)||w.m.includes(q)||w.th.includes(q)):getPartWords(currentPart);const c=document.getElementById('wordList');c.innerHTML='';words.forEach(word=>{const d=document.createElement('div');d.className='word-item';d.innerHTML='<button class="btn-sound-sm" onclick="speak(\''+word.w+'\')">🔊</button><span class="word">'+word.w+'</span><span class="pos">'+word.p+'</span><div><div class="meaning">'+word.m+'</div><div class="meaning-th">'+word.th+'</div></div>';c.appendChild(d)});document.getElementById('statLeft').textContent='Showing '+words.length+' words'}
+const accentLangs=['en-US','en-CA','en-GB','en-AU'];
+const allowedLangs=new Set(accentLangs.concat(accentLangs.map(l=>l.replace('-','_'))));
+const badVoicePatterns=/child|kid|novelty|compact|whisper|alien|robot|cartoon|zira|anna|huihui|kangkang|zhiwei|yaoyao|hanhan|tracy|danny|elsa/i;
+let cachedVoices=[];
+function loadAccentVoices(){cachedVoices=speechSynthesis.getVoices().filter(v=>allowedLangs.has(v.lang)&&!badVoicePatterns.test(v.name)&&!badVoicePatterns.test(v.voiceURI||''))}
+loadAccentVoices();
+if(cachedVoices.length===0)speechSynthesis.onvoiceschanged=loadAccentVoices;
+function speak(text){const u=new SpeechSynthesisUtterance(text);const lang=accentLangs[Math.floor(Math.random()*accentLangs.length)];u.lang=lang;u.rate=parseFloat(document.getElementById('speedRange').value);if(cachedVoices.length>0){const matches=cachedVoices.filter(v=>(v.lang===lang||v.lang===lang.replace('-','_'))&&/natural|online|neural|premium|enhanced/i.test(v.name+' '+(v.voiceURI||'')));const pool=matches.length>0?matches:cachedVoices.filter(v=>v.lang===lang||v.lang===lang.replace('-','_'));if(pool.length>0)u.voice=pool[Math.floor(Math.random()*pool.length)]}speechSynthesis.cancel();speechSynthesis.speak(u)}
+function speakWord(){const words=getPartWords(currentPart);const idx=mode==='quiz'?quizOrder[currentIndex]:currentIndex;speak(words[idx].w)}
+document.getElementById('speedRange').addEventListener('input',function(){document.getElementById('speedVal').textContent=this.value+'x';localStorage.setItem('toeic_speed',this.value)});
+(function(){const savedSpeed=localStorage.getItem('toeic_speed');if(savedSpeed){document.getElementById('speedRange').value=savedSpeed;document.getElementById('speedVal').textContent=savedSpeed+'x'}})();
+function updateOverall(){const qk=Object.keys(quizKnown).length;document.getElementById('overallProgress').textContent=qk+'/500 mastered ('+Math.round(qk/5)+'%)'}
+function resetProgress(){if(confirm('Reset all progress? This cannot be undone.')){quizKnown={};fcKnown={};localStorage.removeItem('toeic_quiz_known');localStorage.removeItem('toeic_fc_known');renderPartSelector();updateDisplay();updateOverall()}}
+init();updateOverall();
+</script>
+</body>
+</html>

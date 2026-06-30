@@ -1,0 +1,16 @@
+{
+  "name": "toeic",
+  "version": "1.0.0",
+  "description": "A single-page web application for practicing the **Top 500 TOEIC vocabulary words** with Thai translations, organized by **20 themed categories**.",
+  "main": "toeic_data.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@playwright/test": "^1.61.1"
+  }
+}
