@@ -1,6 +1,6 @@
 {
   "name": "toeic",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A single-page web application for practicing the **Top 500 TOEIC vocabulary words** with Thai translations, organized by **20 themed categories**.",
   "main": "toeic_data.js",
   "scripts": {

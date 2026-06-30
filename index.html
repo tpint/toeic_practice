@@ -124,7 +124,7 @@
         <input type="text" class="search-box" id="searchBox" placeholder="Search words (English or Thai)..." oninput="filterList()">
         <div class="word-list" id="wordList"></div>
     </div>
-    <footer>TOEIC Vocabulary Practice v1.0.0</footer>
+    <footer>TOEIC Vocabulary Practice v1.0.1</footer>
 </div>
 <script src="toeic_data.js"></script>
 <script>
@@ -151,12 +151,13 @@ function showList(words){const c=document.getElementById('wordList');c.innerHTML
 function filterList(){const q=document.getElementById('searchBox').value.toLowerCase();const words=q?vocabulary.filter(w=>w.w.includes(q)||w.m.includes(q)||w.th.includes(q)):getPartWords(currentPart);const c=document.getElementById('wordList');c.innerHTML='';words.forEach(word=>{const d=document.createElement('div');d.className='word-item';d.innerHTML='<button class="btn-sound-sm" onclick="speak(\''+word.w+'\')">🔊</button><span class="word">'+word.w+'</span><span class="pos">'+word.p+'</span><div><div class="meaning">'+word.m+'</div><div class="meaning-th">'+word.th+'</div></div>';c.appendChild(d)});document.getElementById('statLeft').textContent='Showing '+words.length+' words'}
 const accentLangs=['en-US','en-CA','en-GB','en-AU'];
 const allowedLangs=new Set(accentLangs.concat(accentLangs.map(l=>l.replace('-','_'))));
-const badVoicePatterns=/child|kid|novelty|compact|whisper|alien|robot|cartoon|zira|anna|huihui|kangkang|zhiwei|yaoyao|hanhan|tracy|danny|elsa/i;
+const badVoicePatterns=/child|kid|novelty|compact|whisper|alien|robot|cartoon|zira|anna|huihui|kangkang|zhiwei|yaoyao|hanhan|tracy|danny|elsa|fred|albert|agnes|kathy|ralph|vicki|victoria|bruce|junior|bahh|boing|bubbles|cellos|trinoids|zarvox|deranged|hysterical|bad news|good news|bells|organ|princess|superstar|wobble/i;
+const goodVoicePatterns=/natural|online|neural|premium|enhanced|siri/i;
 let cachedVoices=[];
-function loadAccentVoices(){cachedVoices=speechSynthesis.getVoices().filter(v=>allowedLangs.has(v.lang)&&!badVoicePatterns.test(v.name)&&!badVoicePatterns.test(v.voiceURI||''))}
+function loadAccentVoices(){const all=speechSynthesis.getVoices().filter(v=>allowedLangs.has(v.lang)&&!badVoicePatterns.test(v.name)&&!badVoicePatterns.test(v.voiceURI||''));const good=all.filter(v=>goodVoicePatterns.test(v.name+' '+(v.voiceURI||'')));cachedVoices=good.length>0?good:all}
 loadAccentVoices();
 if(cachedVoices.length===0)speechSynthesis.onvoiceschanged=loadAccentVoices;
-function speak(text){const u=new SpeechSynthesisUtterance(text);const lang=accentLangs[Math.floor(Math.random()*accentLangs.length)];u.lang=lang;u.rate=parseFloat(document.getElementById('speedRange').value);if(cachedVoices.length>0){const matches=cachedVoices.filter(v=>(v.lang===lang||v.lang===lang.replace('-','_'))&&/natural|online|neural|premium|enhanced/i.test(v.name+' '+(v.voiceURI||'')));const pool=matches.length>0?matches:cachedVoices.filter(v=>v.lang===lang||v.lang===lang.replace('-','_'));if(pool.length>0)u.voice=pool[Math.floor(Math.random()*pool.length)]}speechSynthesis.cancel();speechSynthesis.speak(u)}
+function speak(text){const u=new SpeechSynthesisUtterance(text);const lang=accentLangs[Math.floor(Math.random()*accentLangs.length)];u.lang=lang;u.rate=parseFloat(document.getElementById('speedRange').value);if(cachedVoices.length>0){const langMatch=cachedVoices.filter(v=>v.lang===lang||v.lang===lang.replace('-','_'));const goodLang=langMatch.filter(v=>goodVoicePatterns.test(v.name+' '+(v.voiceURI||'')));const pool=goodLang.length>0?goodLang:langMatch.length>0?langMatch:cachedVoices;if(pool.length>0)u.voice=pool[Math.floor(Math.random()*pool.length)]}speechSynthesis.cancel();speechSynthesis.speak(u)}
 function speakWord(){const words=getPartWords(currentPart);const idx=mode==='quiz'?quizOrder[currentIndex]:currentIndex;speak(words[idx].w)}
 document.getElementById('speedRange').addEventListener('input',function(){document.getElementById('speedVal').textContent=this.value+'x';localStorage.setItem('toeic_speed',this.value)});
 (function(){const savedSpeed=localStorage.getItem('toeic_speed');if(savedSpeed){document.getElementById('speedRange').value=savedSpeed;document.getElementById('speedVal').textContent=savedSpeed+'x'}})();
